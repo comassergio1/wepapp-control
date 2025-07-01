@@ -196,6 +196,67 @@ function createSampleData() {
   });
 }
 
+// Función para crear datos de ejemplo completos (cuentas, pagos, movimientos)
+function createFullSampleData() {
+  return new Promise((resolve, reject) => {
+    // Obtener IDs de usuario, cliente y producto
+    db.get('SELECT id FROM users LIMIT 1', [], (err, user) => {
+      if (err || !user) return reject('No se encontró usuario');
+      db.get('SELECT id FROM clients LIMIT 1', [], (err, client) => {
+        if (err || !client) return reject('No se encontró cliente');
+        db.get('SELECT id, stock, location FROM products LIMIT 1', [], (err, product) => {
+          if (err || !product) return reject('No se encontró producto');
+
+          // Crear una cuenta
+          const totalAmount = 1000;
+          const deliveryAmount = 200;
+          const remainingAmount = totalAmount - deliveryAmount;
+          const totalInstallments = 5;
+          const paidInstallments = 1;
+          const status = 'active';
+          const startDate = new Date().toISOString().slice(0, 10);
+          const dueDate = new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0, 10);
+
+          db.run(
+            `INSERT INTO accounts (client_id, product_id, revendedor_id, total_amount, paid_amount, remaining_amount, delivery_amount, installment_amount, total_installments, paid_installments, start_date, due_date, status, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+            [client.id, product.id, user.id, totalAmount, deliveryAmount, remainingAmount, deliveryAmount, 200, totalInstallments, paidInstallments, startDate, dueDate, status],
+            function(err) {
+              if (err) return reject('Error creando cuenta: ' + err.message);
+              const accountId = this.lastID;
+
+              // Crear un pago
+              db.run(
+                `INSERT INTO payments (account_id, amount, payment_date, payment_method, notes) VALUES (?, ?, ?, ?, ?)`,
+                [accountId, deliveryAmount, startDate, 'efectivo', 'Pago inicial'],
+                function(err) {
+                  if (err) return reject('Error creando pago: ' + err.message);
+
+                  // Crear un movimiento de inventario
+                  const previousStock = product.stock;
+                  const newStock = previousStock - 1;
+                  db.run(
+                    `INSERT INTO inventory_movements (product_id, type, quantity, previous_stock, new_stock, user_id, notes, from_location, to_location, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [product.id, 'egreso', 1, previousStock, newStock, user.id, 'Venta de prueba', product.location, null, startDate],
+                    function(err) {
+                      if (err) return reject('Error creando movimiento: ' + err.message);
+                      // Actualizar stock del producto
+                      db.run('UPDATE products SET stock = ? WHERE id = ?', [newStock, product.id], function(err) {
+                        if (err) return reject('Error actualizando stock: ' + err.message);
+                        console.log('✅ Datos de ejemplo completos creados');
+                        resolve();
+                      });
+                    }
+                  );
+                }
+              );
+            }
+          );
+        });
+      });
+    });
+  });
+}
+
 // Función principal
 async function setupDatabase() {
   try {
@@ -204,6 +265,7 @@ async function setupDatabase() {
     await createSchema();
     await createAdminUser();
     await createSampleData();
+    await createFullSampleData();
     
     console.log('\n🎉 ¡Base de datos configurada exitosamente!');
     console.log('\n📋 Credenciales de acceso:');

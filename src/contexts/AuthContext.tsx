@@ -2,7 +2,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, LoginCredentials, AuthContextType } from '../types';
 
 // Configuración de la API
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api' 
+  : 'http://localhost:3001/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

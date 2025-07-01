@@ -201,11 +201,20 @@ function createFullSampleData() {
   return new Promise((resolve, reject) => {
     // Obtener IDs de usuario, cliente y producto
     db.get('SELECT id FROM users LIMIT 1', [], (err, user) => {
-      if (err || !user) return reject('No se encontró usuario');
+      if (err || !user) {
+        console.error('❌ No se encontró usuario:', err);
+        return reject(err || 'No se encontró usuario');
+      }
       db.get('SELECT id FROM clients LIMIT 1', [], (err, client) => {
-        if (err || !client) return reject('No se encontró cliente');
+        if (err || !client) {
+          console.error('❌ No se encontró cliente:', err);
+          return reject(err || 'No se encontró cliente');
+        }
         db.get('SELECT id, stock, location FROM products LIMIT 1', [], (err, product) => {
-          if (err || !product) return reject('No se encontró producto');
+          if (err || !product) {
+            console.error('❌ No se encontró producto:', err);
+            return reject(err || 'No se encontró producto');
+          }
 
           // Crear una cuenta
           const totalAmount = 1000;
@@ -221,7 +230,10 @@ function createFullSampleData() {
             `INSERT INTO accounts (client_id, product_id, revendedor_id, total_amount, paid_amount, remaining_amount, delivery_amount, installment_amount, total_installments, paid_installments, start_date, due_date, status, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
             [client.id, product.id, user.id, totalAmount, deliveryAmount, remainingAmount, deliveryAmount, 200, totalInstallments, paidInstallments, startDate, dueDate, status],
             function(err) {
-              if (err) return reject('Error creando cuenta: ' + err.message);
+              if (err) {
+                console.error('❌ Error creando cuenta:', err);
+                return reject(err);
+              }
               const accountId = this.lastID;
 
               // Crear un pago
@@ -229,7 +241,10 @@ function createFullSampleData() {
                 `INSERT INTO payments (account_id, amount, payment_date, payment_method, notes) VALUES (?, ?, ?, ?, ?)`,
                 [accountId, deliveryAmount, startDate, 'efectivo', 'Pago inicial'],
                 function(err) {
-                  if (err) return reject('Error creando pago: ' + err.message);
+                  if (err) {
+                    console.error('❌ Error creando pago:', err);
+                    return reject(err);
+                  }
 
                   // Crear un movimiento de inventario
                   const previousStock = product.stock;
@@ -238,10 +253,16 @@ function createFullSampleData() {
                     `INSERT INTO inventory_movements (product_id, type, quantity, previous_stock, new_stock, user_id, notes, from_location, to_location, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [product.id, 'egreso', 1, previousStock, newStock, user.id, 'Venta de prueba', product.location, null, startDate],
                     function(err) {
-                      if (err) return reject('Error creando movimiento: ' + err.message);
+                      if (err) {
+                        console.error('❌ Error creando movimiento:', err);
+                        return reject(err);
+                      }
                       // Actualizar stock del producto
                       db.run('UPDATE products SET stock = ? WHERE id = ?', [newStock, product.id], function(err) {
-                        if (err) return reject('Error actualizando stock: ' + err.message);
+                        if (err) {
+                          console.error('❌ Error actualizando stock:', err);
+                          return reject(err);
+                        }
                         console.log('✅ Datos de ejemplo completos creados');
                         resolve();
                       });

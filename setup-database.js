@@ -64,16 +64,23 @@ function createSchema() {
       CREATE TABLE IF NOT EXISTS accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
         revendedor_id INTEGER NOT NULL,
         total_amount REAL NOT NULL,
         paid_amount REAL DEFAULT 0,
         remaining_amount REAL DEFAULT 0,
+        delivery_amount REAL DEFAULT 0,
+        installment_amount REAL DEFAULT 0,
         total_installments INTEGER DEFAULT 1,
         paid_installments INTEGER DEFAULT 0,
+        start_date DATE DEFAULT CURRENT_DATE,
+        due_date DATE DEFAULT (CURRENT_DATE + 365),
         status TEXT DEFAULT 'active',
+        is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (client_id) REFERENCES clients (id),
+        FOREIGN KEY (product_id) REFERENCES products (id),
         FOREIGN KEY (revendedor_id) REFERENCES users (id)
       );
 

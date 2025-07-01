@@ -1,0 +1,13 @@
+{
+  "ssh": {
+    "user": "u123456789",
+    "host": "phoenixconsultora.online",
+    "port": 22,
+    "path": "/home/u123456789/public_html"
+  },
+  "domain": "phoenixconsultora.online",
+  "nodejs": {
+    "version": "18.x",
+    "port": 3000
+  }
+} 

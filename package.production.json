@@ -1,0 +1,35 @@
+{
+  "name": "wepapp-control-production",
+  "version": "1.0.0",
+  "description": "Sistema de Control de Ventas - Producción",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node server/index.js",
+    "setup": "node database/setup.js",
+    "seed": "node database/seed.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "axios": "^1.5.0",
+    "cheerio": "^1.0.0-rc.12",
+    "path": "^0.12.7"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "control",
+    "ventas",
+    "inventario",
+    "financiamiento"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT"
+} 

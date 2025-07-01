@@ -15,13 +15,23 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Importar setup de base de datos
+const { setupDatabase } = require('../setup-database');
+
 // Conectar a la base de datos
 const dbPath = path.join(__dirname, '../database/wepapp_control.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, async (err) => {
   if (err) {
     console.error('Error conectando a la base de datos:', err.message);
   } else {
     console.log('Conectado a la base de datos SQLite');
+    
+    // Ejecutar setup de base de datos si es necesario
+    try {
+      await setupDatabase();
+    } catch (setupError) {
+      console.error('Error en setup de base de datos:', setupError.message);
+    }
   }
 });
 

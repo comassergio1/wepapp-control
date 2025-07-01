@@ -17,6 +17,7 @@ app.use(express.json());
 
 // Importar setup de base de datos
 const { setupDatabase } = require('../setup-database');
+const { checkDatabase } = require('../check-database');
 
 // Conectar a la base de datos
 const dbPath = path.join(__dirname, '../database/wepapp_control.db');
@@ -29,6 +30,8 @@ const db = new sqlite3.Database(dbPath, async (err) => {
     // Ejecutar setup de base de datos si es necesario
     try {
       await setupDatabase();
+      // Verificar estado de la base de datos
+      await checkDatabase();
     } catch (setupError) {
       console.error('Error en setup de base de datos:', setupError.message);
     }

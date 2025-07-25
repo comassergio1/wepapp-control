@@ -93,6 +93,7 @@ function createSchema() {
         payment_method TEXT,
         receipt_path TEXT,
         notes TEXT,
+        installment_number INTEGER NOT NULL DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (account_id) REFERENCES accounts (id)
       );
@@ -238,8 +239,8 @@ function createFullSampleData() {
 
               // Crear un pago
               db.run(
-                `INSERT INTO payments (account_id, amount, payment_date, payment_method, notes) VALUES (?, ?, ?, ?, ?)`,
-                [accountId, deliveryAmount, startDate, 'efectivo', 'Pago inicial'],
+                `INSERT INTO payments (account_id, amount, payment_date, payment_method, notes, installment_number, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [accountId, deliveryAmount, startDate, 'efectivo', 'Pago inicial', 1, user.id],
                 function(err) {
                   if (err) {
                     console.error('❌ Error creando pago:', err);

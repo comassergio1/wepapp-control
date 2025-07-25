@@ -15,13 +15,29 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Importar setup de base de datos
+const { setupDatabase } = require('../setup-database');
+const { checkDatabase } = require('../check-database');
+const { migrateDatabase } = require('../migrate-accounts');
+
 // Conectar a la base de datos
 const dbPath = path.join(__dirname, '../database/wepapp_control.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, async (err) => {
   if (err) {
     console.error('Error conectando a la base de datos:', err.message);
   } else {
     console.log('Conectado a la base de datos SQLite');
+    
+    // Ejecutar setup de base de datos si es necesario
+    try {
+      await setupDatabase();
+      // Ejecutar migración si es necesario
+      await migrateDatabase();
+      // Verificar estado de la base de datos
+      await checkDatabase();
+    } catch (setupError) {
+      console.error('Error en setup de base de datos:', setupError.message);
+    }
   }
 });
 
@@ -855,6 +871,9 @@ app.delete('/api/inventory-movements/:id', (req, res) => {
 // Servir archivos de comprobantes de forma pública
 app.use('/uploads/comprobantes', express.static(path.join(__dirname, '../uploads/comprobantes')));
 
+// Servir archivos estáticos de React (build)
+app.use(express.static(path.join(__dirname, '../build')));
+
 // Ruta para obtener el valor del dólar blue
 app.get('/api/dolar-blue', async (req, res) => {
   try {
@@ -881,7 +900,13 @@ app.get('/api/dolar-blue', async (req, res) => {
   }
 });
 
+// Ruta catch-all para React Router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'));
+});
+
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`URL: http://localhost:${PORT}`);
 });

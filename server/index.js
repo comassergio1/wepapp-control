@@ -35,8 +35,11 @@ const db = new sqlite3.Database(dbPath, async (err) => {
       await migrateDatabase();
       // Verificar estado de la base de datos
       await checkDatabase();
+      console.log('✅ Configuración de base de datos completada');
     } catch (setupError) {
-      console.error('Error en setup de base de datos:', setupError.message);
+      console.error('❌ Error en setup de base de datos:', setupError.message);
+      // No cerrar el servidor por errores de setup
+      console.log('⚠️  Continuando con el servidor...');
     }
   }
 });
@@ -906,7 +909,33 @@ app.get('*', (req, res) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-  console.log(`URL: http://localhost:${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`📊 Servidor listo para recibir conexiones`);
+});
+
+// Manejo de errores del servidor
+server.on('error', (error) => {
+  console.error('❌ Error en el servidor:', error.message);
+  if (error.code === 'EADDRINUSE') {
+    console.error('⚠️  El puerto ya está en uso');
+  }
+});
+
+// Manejo de señales de terminación
+process.on('SIGTERM', () => {
+  console.log('🔄 Recibida señal SIGTERM, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🔄 Recibida señal SIGINT, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
 });

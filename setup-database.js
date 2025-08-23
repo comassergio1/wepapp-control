@@ -297,15 +297,8 @@ async function setupDatabase() {
     
   } catch (error) {
     console.error('❌ Error en la configuración:', error.message);
-    process.exit(1);
-  } finally {
-    db.close((err) => {
-      if (err) {
-        console.error('❌ Error cerrando base de datos:', err.message);
-      } else {
-        console.log('✅ Base de datos cerrada');
-      }
-    });
+    // No cerrar la base de datos aquí, el servidor la necesita
+    throw error;
   }
 }
 

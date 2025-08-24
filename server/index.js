@@ -564,6 +564,9 @@ app.get('/api/accounts/:id', (req, res) => {
 
 // Rutas de pagos
 app.get('/api/payments', (req, res) => {
+  console.log('💰 API: Solicitud de pagos recibida');
+  console.log('🔍 Query params:', req.query);
+  
   const { accountId } = req.query;
   let query = `
     SELECT p.*, a.client_id, c.name as client_name, u.name as user_name
@@ -579,10 +582,16 @@ app.get('/api/payments', (req, res) => {
     params.push(accountId);
   }
   
+  console.log('📝 Query SQL:', query);
+  console.log('🔢 Parámetros:', params);
+  
   db.all(query, params, (err, payments) => {
     if (err) {
+      console.error('❌ Error obteniendo pagos:', err.message);
+      console.error('🔍 Error completo:', err);
       return res.status(500).json({ error: 'Error obteniendo pagos' });
     }
+    console.log(`✅ Pagos enviados: ${payments.length}`);
     res.json(payments);
   });
 });

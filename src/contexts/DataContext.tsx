@@ -3,7 +3,7 @@ import { Client, Product, Account, Payment, InventoryMovement, User } from '../t
 import { useAuth } from './AuthContext';
 
 // Configuración de la API
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
+const API_BASE_URL = process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost'
   ? '/api' 
   : 'http://localhost:3001/api';
 
@@ -58,7 +58,12 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Función helper para hacer llamadas a la API
   const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    console.log('🌐 API Call:', fullUrl);
+    console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+    console.log('🌍 Hostname:', window.location.hostname);
+    
+    const response = await fetch(fullUrl, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,

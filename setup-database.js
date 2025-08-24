@@ -53,7 +53,7 @@ function createSchema() {
         email TEXT,
         phone TEXT,
         address TEXT,
-        revendedor_id INTEGER,
+        revendedor_id INTEGER NOT NULL,
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -91,11 +91,13 @@ function createSchema() {
         amount REAL NOT NULL,
         payment_date DATE NOT NULL,
         payment_method TEXT,
-        receipt_path TEXT,
+        receipt_image TEXT,
         notes TEXT,
         installment_number INTEGER NOT NULL DEFAULT 1,
+        user_id INTEGER NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (account_id) REFERENCES accounts (id)
+        FOREIGN KEY (account_id) REFERENCES accounts (id),
+        FOREIGN KEY (user_id) REFERENCES users (id)
       );
 
       -- Tabla de movimientos de inventario

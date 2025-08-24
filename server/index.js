@@ -22,6 +22,8 @@ const { migrateDatabase } = require('../migrate-accounts');
 
 // Conectar a la base de datos
 const dbPath = path.join(__dirname, '../database/wepapp_control.db');
+console.log('🔍 Intentando conectar a BD en:', dbPath);
+
 const db = new sqlite3.Database(dbPath, async (err) => {
   if (err) {
     console.error('Error conectando a la base de datos:', err.message);
@@ -187,11 +189,14 @@ app.delete('/api/users/:id', (req, res) => {
 
 // Rutas de productos
 app.get('/api/products', (req, res) => {
+  console.log('📦 API: Solicitud de productos recibida');
   const query = 'SELECT * FROM products WHERE is_active = 1';
   db.all(query, [], (err, products) => {
     if (err) {
+      console.error('❌ Error obteniendo productos:', err.message);
       return res.status(500).json({ error: 'Error obteniendo productos' });
     }
+    console.log(`✅ Productos enviados: ${products.length}`);
     res.json(products);
   });
 });
